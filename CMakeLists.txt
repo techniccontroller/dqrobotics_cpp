@@ -6,7 +6,17 @@ if(WIN32)
 endif()
 
 PROJECT(dqrobotics)
-set (CMAKE_CXX_STANDARD 11)
+set (CMAKE_CXX_STANDARD 17)
+
+option(WITH_PCL_OPTIMIZATION_FLAGS "Use optimization flags used by PCL to compile a compatible interface to EIGEN types" ON)
+set(PCL_OPTIMIZATION_FLAGS)
+message(STATUS "PCL optimization flags = ${WITH_PCL_OPTIMIZATION_FLAGS}")
+if (${WITH_PCL_OPTIMIZATION_FLAGS})
+    find_package(PCL REQUIRED COMPONENTS common)
+    get_target_property(OUTPUT pcl_common INTERFACE_COMPILE_OPTIONS)
+    set(PCL_OPTIMIZATION_FLAGS ${OUTPUT})
+    message(STATUS "PCL optimization flags = ${PCL_OPTIMIZATION_FLAGS}")
+endif ()
 
 INCLUDE_DIRECTORIES(include)
 
@@ -77,6 +87,8 @@ SET_TARGET_PROPERTIES(dqrobotics
     PROPERTIES PUBLIC_HEADER
     include/dqrobotics/DQ.h
     )
+
+target_compile_options(dqrobotics PUBLIC ${PCL_OPTIMIZATION_FLAGS})
 
 INSTALL(TARGETS dqrobotics 
 # https://stackoverflow.com/questions/21592361/cmake-install-is-not-installing-libraries-on-windows    
